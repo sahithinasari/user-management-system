@@ -50,7 +50,6 @@ public class AuthController {
     public Map<String, String> registerUser(@RequestBody User user) {
         // Call the UserService to register the user
         String token = userService.registerUser(user);
-
         // Return the generated JWT token
         Map<String, String> response = new HashMap<>();
         response.put("access_token", token);
