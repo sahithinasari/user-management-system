@@ -51,11 +51,8 @@ public class UserService {
 
         // ✅ Use UserDetails for token generation
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
-        return jwtUtil.generateToken(userDetails);
+        return jwtUtil.generateToken(userDetails.getUsername());
     }
-//    public Optional<User> findByMailId(String mailId) {
-//        return userRepository.findByMailId(mailId);
-//    }
 
     public User updateUser(Long id, User updatedUser) {
         Optional<User> optionalUser = userRepository.findById(id);

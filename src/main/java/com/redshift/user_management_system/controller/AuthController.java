@@ -5,6 +5,7 @@ import com.redshift.user_management_system.model.User;
 import com.redshift.user_management_system.security.CustomUserDetailsService;
 import com.redshift.user_management_system.service.JwtUtil;
 import com.redshift.user_management_system.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
+@Slf4j
 public class AuthController {
 
     @Autowired
@@ -25,7 +27,6 @@ public class AuthController {
     private CustomUserDetailsService userDetailsService;
     @Autowired
     private UserService userService;
-
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -37,9 +38,8 @@ public class AuthController {
         );
         // Load user details
         UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getIdentifier());
-
         // Generate JWT Token
-        String token = jwtUtil.generateToken(userDetails);
+        String token = jwtUtil.generateToken(userDetails.getUsername());
 
         // Return Token
         Map<String, String> response = new HashMap<>();
