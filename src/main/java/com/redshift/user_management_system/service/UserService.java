@@ -1,73 +1,45 @@
-// UserService.java
 package com.redshift.user_management_system.service;
 
 import com.redshift.user_management_system.model.User;
 import com.redshift.user_management_system.repository.UserRepository;
-import com.redshift.user_management_system.sender.RabbitMQSender;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RabbitMQSender sender;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private UserDetailsService userDetailsService;
-    @Autowired
-    private JwtUtil jwtUtil;
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsernameOrMailId(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public User updateUserProfile(String username, User updatedUser) {
+        return userRepository.findByUsernameOrMailId(username)
+                .map(user -> {
+                    user.setName(updatedUser.getName());
+                    user.setMailId(updatedUser.getMailId());
+                    user.setMobileNo(updatedUser.getMobileNo());
+                    user.setPassword(passwordEncoder.encode(updatedUser.getPassword())); // Ensure password is hashed
+                    return userRepository.save(user);
+                })
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    public User getUserById(Long id) {
-        return userRepository.findById(id)
-                .orElse(null);
+    public void deleteUserByUsername(String username) {
+        userRepository.deleteByUsername(username);
     }
-
-    public String registerUser(User user) {
-        Optional<User> existingUser = userRepository.findByUsernameOrMailId(user.getUsername());
-        if (existingUser.isPresent()) {
-            throw new RuntimeException("User already exists!");
-        }
-        existingUser = userRepository.findByUsernameOrMailId(user.getMailId());
-        if (existingUser.isPresent()) {
-            throw new RuntimeException("User already exists!");
-        }
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // ✅ Encode password before saving
-        userRepository.save(user);
-
-        // ✅ Use UserDetails for token generation
-        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
-        return jwtUtil.generateToken(userDetails.getUsername());
-    }
-
-    public User updateUser(Long id, User updatedUser) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        if (optionalUser.isPresent()) {
-            User existingUser = optionalUser.get();
-            existingUser.setName(updatedUser.getName());
-            return userRepository.save(existingUser);
-        } else {
-            throw new RuntimeException("User not found with id " + id);
-        }
-    }
-
-    public boolean deleteUser(Long id) {
-         userRepository.deleteById(id);
-         return true;
-    }
-    
 }

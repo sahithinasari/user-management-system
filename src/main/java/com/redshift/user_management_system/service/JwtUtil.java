@@ -1,11 +1,13 @@
 package com.redshift.user_management_system.service;
 
+import com.redshift.user_management_system.model.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -14,6 +16,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -53,14 +58,24 @@ public class JwtUtil {
     }
 
     // ✅ Generate Token
-    public String generateToken(String username) {
+    public String generateToken(UserDetails user) {
+        Map<String, Object> claims = new HashMap<>();
+
+        // Extract roles from GrantedAuthority and store as a list in JWT
+        claims.put("roles", user.getAuthorities().stream()
+                .map(authority -> authority.getAuthority().replace("ROLE_", "")) // Remove "ROLE_" prefix
+                .collect(Collectors.toList()));
+
         return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date()) // Token issued time
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime)) // Expiry
+                .setClaims(claims)
+                .setSubject(user.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(getSecretKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
+
 
     // ✅ Extract Username
     public String extractUsername(String token) {

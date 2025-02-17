@@ -10,8 +10,12 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User,Long> {
-//    Optional<User> findByMailId(String mailId);
-//    Optional<User> findByUsername(String userName);
+    //    Optional<User> findByMailId(String mailId);
+    //    Optional<User> findByUsername(String userName);
+    //    Optional<User> findByUsernameOrMailId(String username, String mailId);
     @Query("SELECT u FROM User u WHERE u.username = :identifier OR u.mailId = :identifier")
     Optional<User> findByUsernameOrMailId(@Param("identifier") String identifier);
+
+    Optional<User> deleteByUsername(String userName);
+
 }
