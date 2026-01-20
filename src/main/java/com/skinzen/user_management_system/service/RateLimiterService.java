@@ -18,7 +18,7 @@ public class RateLimiterService {
 
         synchronized (attempt) {
             long now = System.currentTimeMillis();
-
+            // if the attempt is after given time reset the counter
             if (now - attempt.windowStart > WINDOW_MS) {
                 attempt.windowStart = now;
                 attempt.count = 0;

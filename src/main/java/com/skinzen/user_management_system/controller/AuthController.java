@@ -4,6 +4,7 @@ import com.skinzen.user_management_system.dto.*;
 import com.skinzen.user_management_system.exceptions.ApiResponse;
 import com.skinzen.user_management_system.exceptions.TooManyRequestsException;
 import com.skinzen.user_management_system.service.AuthService;
+import com.skinzen.user_management_system.service.EmailVerificationService;
 import com.skinzen.user_management_system.service.RateLimiterService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -13,12 +14,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth/v1")
+@RequestMapping("/api/v1/auth")
 @Slf4j
 public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private EmailVerificationService emailVerificationService;
 
     @Autowired
     private RateLimiterService rateLimiterService;
@@ -36,7 +40,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/auth/register")
+    @PostMapping("/register")
     public ResponseEntity<ApiResponse> registerUser(@Valid @RequestBody RegisterRequest request) {
         String ip = request.getRemoteAddr();
 
@@ -68,6 +72,12 @@ public class AuthController {
         return ResponseEntity.ok(
                 new ApiResponse("Logout successful")
         );
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<String> verifyEmail(@RequestParam String token) {
+        emailVerificationService.verifyEmail(token);
+        return ResponseEntity.ok("Email verified successfully");
     }
 
 }

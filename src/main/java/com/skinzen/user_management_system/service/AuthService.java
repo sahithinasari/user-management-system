@@ -6,11 +6,12 @@ import com.skinzen.user_management_system.enums.Role;
 import com.skinzen.user_management_system.enums.UserStatus;
 import com.skinzen.user_management_system.exceptions.JwtAuthenticationException;
 import com.skinzen.user_management_system.exceptions.RegistrationException;
-import com.skinzen.user_management_system.exceptions.TooManyRequestsException;
 import com.skinzen.user_management_system.model.RefreshToken;
 import com.skinzen.user_management_system.model.User;
 import com.skinzen.user_management_system.repository.UserRepository;
+import com.skinzen.user_management_system.util.JwtUtil;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import org.springframework.security.core.AuthenticationException;
 import java.time.LocalDateTime;
 
 @Service
+@Slf4j
 public class AuthService {
 
     @Autowired
@@ -32,6 +34,12 @@ public class AuthService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private RateLimiterService rateLimiterService;
+
+    @Autowired
+    private EmailVerificationService emailVerificationService;
 
     @Transactional
     public void register(RegisterRequest request) {
@@ -53,17 +61,11 @@ public class AuthService {
 
         userRepository.save(user);
 
-        // 5. (Optional) Publish event for email verification
-        // eventPublisher.publish(new UserRegisteredEvent(user));
+        emailVerificationService.sendVerificationEmail(user);
     }
 
     @Transactional
     public LoginResponse login(AuthRequest request) throws AuthenticationException {
-        String ip = request.getRemoteAddr();
-
-        if (!rateLimiterService.isAllowed("LOGIN:" + ip)) {
-            throw new TooManyRequestsException();
-        }
         User user = userRepository.findByEmail(request.getIdentifier())
                 .orElseThrow(() -> new JwtAuthenticationException("Invalid credentials"));
 
@@ -72,7 +74,7 @@ public class AuthService {
         }
 
         String accessToken = jwtUtil.generateAccessToken(user);
-        String refreshToken = refreshTokenService.createRefreshToken(user);
+        String refreshToken = refreshTokenService.createRefreshToken(user).getToken();
 
         return new LoginResponse(
                 accessToken,
@@ -81,21 +83,24 @@ public class AuthService {
         );
     }
 
+
     @Transactional
     public RefreshTokenResponse refreshAccessToken(RefreshTokenRequest request) {
 
-        RefreshToken refreshToken =
-                refreshTokenService.validateAndGet(request.getRefreshToken());
+        RefreshToken newRefreshToken =
+                refreshTokenService.rotate(request.getRefreshToken());
 
-        User user = refreshToken.getUser();
+        User user = newRefreshToken.getUser();
 
         String newAccessToken = jwtUtil.generateAccessToken(user);
 
         return new RefreshTokenResponse(
                 newAccessToken,
+                newRefreshToken.getToken(),
                 jwtUtil.getAccessTokenExpiry()
         );
     }
+
     @Transactional
     public void logout(LogoutRequest request) {
         refreshTokenService.revoke(request.getRefreshToken());

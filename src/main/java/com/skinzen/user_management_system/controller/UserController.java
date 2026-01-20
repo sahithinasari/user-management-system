@@ -13,7 +13,8 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/users")
+// for open API
 @SecurityRequirement(name = "bearerAuth")
 public class UserController {
 
@@ -26,22 +27,17 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    // make sure only authenticated user with matching user id can access his data
     @PreAuthorize("#userId == authentication.principal.username or hasRole('ADMIN')")
     @GetMapping("/users/{userId}")
     public User getUser(@PathVariable String userId) {
         return userService.getUserByEmail(userId);
     }
 
-    @PreAuthorize("authentication.name == #email")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/users/email/{email}")
     public User getByEmail(@PathVariable String email) {
         return userService.getUserByEmail(email);
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/users/{id}")
-    public void deleteUser(@PathVariable UUID id) {
-        userService.delete(id);
     }
 
     @GetMapping("/{id}")
@@ -62,5 +58,11 @@ public class UserController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/users/{id}")
+    public void deleteUser(@PathVariable UUID id) {
+        userService.delete(id);
     }
 }

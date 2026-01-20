@@ -1,7 +1,7 @@
 package com.skinzen.user_management_system.config;
 
 import com.skinzen.user_management_system.security.CustomUserDetailsService;
-import com.skinzen.user_management_system.service.JwtUtil;
+import com.skinzen.user_management_system.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,7 +40,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         try {
             String token = header.substring(7);
-            String username = jwtUtil.extractUsername(token);
+            String username = jwtUtil.extractSubject(token);
 
             if (username != null &&
                     SecurityContextHolder.getContext().getAuthentication() == null) {
