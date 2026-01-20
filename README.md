@@ -173,8 +173,7 @@ Request payload:
 {
 "username": "sahithi",
 "email": "sahithi@gmail.com",
-"password": "password123",
-"roles": ["USER"]
+"password": "password123"
 }
 ```
 
