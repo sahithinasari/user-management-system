@@ -1,68 +1,43 @@
-// UserController.java
 package com.skinzen.user_management_system.controller;
 
-import com.skinzen.user_management_system.model.User;
+import com.skinzen.user_management_system.dto.UpdateUserRequest;
+import com.skinzen.user_management_system.dto.UserResponse;
 import com.skinzen.user_management_system.service.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/users")
-// for open API
 @SecurityRequirement(name = "bearerAuth")
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/admin/users")
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser(
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return ResponseEntity.ok(
+                userService.getCurrentUser(email)
+        );
     }
 
-    // make sure only authenticated user with matching user id can access his data
-    @PreAuthorize("#userId == authentication.principal.username or hasRole('ADMIN')")
-    @GetMapping("/users/{userId}")
-    public User getUser(@PathVariable String userId) {
-        return userService.getUserByEmail(userId);
-    }
+    @PutMapping("/me")
+    public ResponseEntity<UserResponse> updateCurrentUser(
+            Authentication authentication,
+            @Valid @RequestBody UpdateUserRequest request) {
 
-    @PreAuthorize("hasRole('USER')")
-    @GetMapping("/users/email/{email}")
-    public User getByEmail(@PathVariable String email) {
-        return userService.getUserByEmail(email);
-    }
+        String email = authentication.getName();
 
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable UUID id) {
-        User user = userService.getUserById(id);
-        if (user != null) {
-            return ResponseEntity.ok(user);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable UUID id, @RequestBody User updatedUser) {
-        User user = userService.updateUser(id, updatedUser);
-        if (user != null) {
-            return ResponseEntity.ok(user);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/users/{id}")
-    public void deleteUser(@PathVariable UUID id) {
-        userService.delete(id);
+        return ResponseEntity.ok(
+                userService.updateCurrentUser(email, request)
+        );
     }
 }
