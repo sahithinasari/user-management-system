@@ -1,13 +1,8 @@
 package com.skinzen.user_management_system.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@AllArgsConstructor
-@Getter
-public class LoginResponse {
-
-    private String accessToken;
-    private String refreshToken;
-    private long expiresIn;
+public record LoginResponse(
+        String accessToken,
+        String refreshToken,
+        long expiresIn
+) {
 }

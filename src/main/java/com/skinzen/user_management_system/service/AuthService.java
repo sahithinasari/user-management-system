@@ -1,7 +1,9 @@
 // UserService.java
 package com.skinzen.user_management_system.service;
 
+import com.skinzen.user_management_system.audit.Auditable;
 import com.skinzen.user_management_system.dto.*;
+import com.skinzen.user_management_system.enums.AuditEvent;
 import com.skinzen.user_management_system.enums.Role;
 import com.skinzen.user_management_system.enums.UserStatus;
 import com.skinzen.user_management_system.exceptions.JwtAuthenticationException;
@@ -36,24 +38,24 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private RateLimiterService rateLimiterService;
-
-    @Autowired
     private EmailVerificationService emailVerificationService;
 
+    @Auditable(
+            success = AuditEvent.USER_REGISTERED
+    )
     @Transactional
     public void register(RegisterRequest request) {
 
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(request.email())) {
             throw new RegistrationException("Registration failed");
         }
 
-        String hashedPassword = passwordEncoder.encode(request.getPassword());
+        String hashedPassword = passwordEncoder.encode(request.password());
 
         User user = new User();
-        user.setEmail(request.getEmail());
+        user.setEmail(request.email());
         user.setPasswordHash(hashedPassword);
-        user.setName(request.getName());
+        user.setName(request.name());
         user.setRole(Role.USER);
         user.setStatus(UserStatus.PENDING_VERIFICATION);
         user.setEmailVerified(false);
@@ -64,12 +66,16 @@ public class AuthService {
         emailVerificationService.sendVerificationEmail(user);
     }
 
+    @Auditable(
+            success = AuditEvent.LOGIN_SUCCESS,
+            failure = AuditEvent.LOGIN_FAILED
+    )
     @Transactional
     public LoginResponse login(AuthRequest request) throws AuthenticationException {
-        User user = userRepository.findByEmail(request.getIdentifier())
+        User user = userRepository.findByEmail(request.identifier())
                 .orElseThrow(() -> new JwtAuthenticationException("Invalid credentials"));
 
-        if (user.getStatus() != UserStatus.ACTIVE || !passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+        if (user.getStatus() != UserStatus.ACTIVE || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new JwtAuthenticationException("Invalid credentials");
         }
 
@@ -84,11 +90,14 @@ public class AuthService {
     }
 
 
+    @Auditable(
+            success = AuditEvent.TOKEN_REFRESHED
+    )
     @Transactional
     public RefreshTokenResponse refreshAccessToken(RefreshTokenRequest request) {
 
         RefreshToken newRefreshToken =
-                refreshTokenService.rotate(request.getRefreshToken());
+                refreshTokenService.rotate(request.refreshToken());
 
         User user = newRefreshToken.getUser();
 
@@ -101,9 +110,12 @@ public class AuthService {
         );
     }
 
+    @Auditable(
+            success = AuditEvent.LOGOUT
+    )
     @Transactional
     public void logout(LogoutRequest request) {
-        refreshTokenService.revoke(request.getRefreshToken());
+        refreshTokenService.revoke(request.refreshToken());
     }
 
 }

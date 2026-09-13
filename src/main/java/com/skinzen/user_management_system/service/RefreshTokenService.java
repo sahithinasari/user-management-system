@@ -52,7 +52,7 @@ public class RefreshTokenService {
         return createRefreshToken(oldToken.getUser());
     }
 
-    private void revokeAllTokensForUser(User user) {
+    public void revokeAllTokensForUser(User user) {
         repository.revokeAllByUser(user);
     }
 

@@ -2,17 +2,14 @@ package com.skinzen.user_management_system.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
 
-@Data
-public class AuthRequest {
-    @NotBlank
-    @Email
-    private String identifier;
+public record AuthRequest(
 
-    @NotBlank
-    private String password;
+        @NotBlank(message = "Identifier is required")
+        @Email(message = "Please enter a valid email address")
+        String identifier,
 
-    private String remoteAddr;
+        @NotBlank(message = "Password is required")
+        String password
+) {
 }

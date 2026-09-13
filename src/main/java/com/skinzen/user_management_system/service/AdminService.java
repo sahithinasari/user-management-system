@@ -9,11 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 import static com.skinzen.user_management_system.enums.Role.ADMIN;
 
+@Service
 public class AdminService {
     @Autowired
     private UserRepository userRepository;
@@ -32,10 +36,10 @@ public class AdminService {
         }
 
         User user = new User();
-        user.setEmail(request.getEmail());
-        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        user.setEmail(request.email());
+        user.setPasswordHash(passwordEncoder.encode(request.password()));
         user.setRole(ADMIN);
-        user.setName(request.getName());
+        user.setName(request.name());
         user.setStatus(UserStatus.PENDING_VERIFICATION);
         user.setEmailVerified(false);
         user.setCreatedAt(LocalDateTime.now());
@@ -53,4 +57,16 @@ public class AdminService {
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
     }
 
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+    public User getUserById(UUID id) {
+        return userRepository.findById(id)
+                .orElse(null);
+    }
+
+    public boolean delete(UUID id) {
+        userRepository.deleteById(id);
+        return true;
+    }
 }
