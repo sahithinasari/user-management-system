@@ -36,10 +36,10 @@ public class AdminService {
         }
 
         User user = new User();
-        user.setEmail(request.getEmail());
-        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        user.setEmail(request.email());
+        user.setPasswordHash(passwordEncoder.encode(request.password()));
         user.setRole(ADMIN);
-        user.setName(request.getName());
+        user.setName(request.name());
         user.setStatus(UserStatus.PENDING_VERIFICATION);
         user.setEmailVerified(false);
         user.setCreatedAt(LocalDateTime.now());

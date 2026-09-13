@@ -23,7 +23,7 @@ public class RateLimiterService {
         return isAllowed("REGISTER:" + ip, REGISTER_MAX_ATTEMPTS);
     }
 
-    private boolean isAllowed(String key, int maxAttempts) {
+    boolean isAllowed(String key, int maxAttempts) {
 
         Attempt attempt = attempts.computeIfAbsent(
                 key,

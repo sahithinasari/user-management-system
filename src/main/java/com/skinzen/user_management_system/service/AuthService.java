@@ -46,16 +46,16 @@ public class AuthService {
     @Transactional
     public void register(RegisterRequest request) {
 
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(request.email())) {
             throw new RegistrationException("Registration failed");
         }
 
-        String hashedPassword = passwordEncoder.encode(request.getPassword());
+        String hashedPassword = passwordEncoder.encode(request.password());
 
         User user = new User();
-        user.setEmail(request.getEmail());
+        user.setEmail(request.email());
         user.setPasswordHash(hashedPassword);
-        user.setName(request.getName());
+        user.setName(request.name());
         user.setRole(Role.USER);
         user.setStatus(UserStatus.PENDING_VERIFICATION);
         user.setEmailVerified(false);
@@ -72,10 +72,10 @@ public class AuthService {
     )
     @Transactional
     public LoginResponse login(AuthRequest request) throws AuthenticationException {
-        User user = userRepository.findByEmail(request.getIdentifier())
+        User user = userRepository.findByEmail(request.identifier())
                 .orElseThrow(() -> new JwtAuthenticationException("Invalid credentials"));
 
-        if (user.getStatus() != UserStatus.ACTIVE || !passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+        if (user.getStatus() != UserStatus.ACTIVE || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new JwtAuthenticationException("Invalid credentials");
         }
 
@@ -97,7 +97,7 @@ public class AuthService {
     public RefreshTokenResponse refreshAccessToken(RefreshTokenRequest request) {
 
         RefreshToken newRefreshToken =
-                refreshTokenService.rotate(request.getRefreshToken());
+                refreshTokenService.rotate(request.refreshToken());
 
         User user = newRefreshToken.getUser();
 
@@ -115,7 +115,7 @@ public class AuthService {
     )
     @Transactional
     public void logout(LogoutRequest request) {
-        refreshTokenService.revoke(request.getRefreshToken());
+        refreshTokenService.revoke(request.refreshToken());
     }
 
 }

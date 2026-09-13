@@ -91,7 +91,7 @@ public class AuditAspect {
             if (argument instanceof AuthRequest request) {
 
                 return userRepository
-                        .findByEmail(request.getIdentifier())
+                        .findByEmail(request.identifier())
                         .orElse(null);
             }
         }
