@@ -1,7 +1,9 @@
 // UserService.java
 package com.skinzen.user_management_system.service;
 
+import com.skinzen.user_management_system.audit.Auditable;
 import com.skinzen.user_management_system.dto.*;
+import com.skinzen.user_management_system.enums.AuditEvent;
 import com.skinzen.user_management_system.enums.Role;
 import com.skinzen.user_management_system.enums.UserStatus;
 import com.skinzen.user_management_system.exceptions.JwtAuthenticationException;
@@ -36,11 +38,11 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private RateLimiterService rateLimiterService;
-
-    @Autowired
     private EmailVerificationService emailVerificationService;
 
+    @Auditable(
+            success = AuditEvent.USER_REGISTERED
+    )
     @Transactional
     public void register(RegisterRequest request) {
 
@@ -64,6 +66,10 @@ public class AuthService {
         emailVerificationService.sendVerificationEmail(user);
     }
 
+    @Auditable(
+            success = AuditEvent.LOGIN_SUCCESS,
+            failure = AuditEvent.LOGIN_FAILED
+    )
     @Transactional
     public LoginResponse login(AuthRequest request) throws AuthenticationException {
         User user = userRepository.findByEmail(request.getIdentifier())
@@ -84,6 +90,9 @@ public class AuthService {
     }
 
 
+    @Auditable(
+            success = AuditEvent.TOKEN_REFRESHED
+    )
     @Transactional
     public RefreshTokenResponse refreshAccessToken(RefreshTokenRequest request) {
 
@@ -101,6 +110,9 @@ public class AuthService {
         );
     }
 
+    @Auditable(
+            success = AuditEvent.LOGOUT
+    )
     @Transactional
     public void logout(LogoutRequest request) {
         refreshTokenService.revoke(request.getRefreshToken());

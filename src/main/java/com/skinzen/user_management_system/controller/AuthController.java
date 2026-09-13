@@ -3,9 +3,7 @@ package com.skinzen.user_management_system.controller;
 import com.skinzen.user_management_system.dto.*;
 import com.skinzen.user_management_system.exceptions.ApiResponse;
 import com.skinzen.user_management_system.exceptions.TooManyRequestsException;
-import com.skinzen.user_management_system.service.AuthService;
-import com.skinzen.user_management_system.service.EmailVerificationService;
-import com.skinzen.user_management_system.service.RateLimiterService;
+import com.skinzen.user_management_system.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +19,7 @@ public class AuthController {
     private final AuthService authService;
     private final EmailVerificationService emailVerificationService;
     private final RateLimiterService rateLimiterService;
+    private final PasswordResetService passwordResetService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
@@ -29,7 +28,7 @@ public class AuthController {
 
         String ip = httpRequest.getRemoteAddr();
 
-        if (!rateLimiterService.isAllowed("LOGIN:" + ip)) {
+        if (!rateLimiterService.isLoginAllowed("LOGIN:" + ip)) {
             throw new TooManyRequestsException();
         }
 
@@ -45,7 +44,7 @@ public class AuthController {
 
         String ip = httpRequest.getRemoteAddr();
 
-        if (!rateLimiterService.isAllowed("REGISTER:" + ip)) {
+        if (!rateLimiterService.isRegistrationAllowed("REGISTER:" + ip)) {
             throw new TooManyRequestsException();
         }
 
@@ -85,5 +84,33 @@ public class AuthController {
         emailVerificationService.verifyEmail(token);
 
         return ResponseEntity.ok("Email verified successfully");
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse> forgotPassword(
+            @Valid @RequestBody ForgotPasswordRequest request) {
+
+        passwordResetService.sendResetEmail(request.email());
+
+        return ResponseEntity.ok(
+                new ApiResponse(
+                        "If an account exists with this email, " +
+                                "a password reset link has been sent."
+                )
+        );
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request) {
+
+        passwordResetService.resetPassword(
+                request.token(),
+                request.newPassword()
+        );
+
+        return ResponseEntity.ok(
+                new ApiResponse("Password reset successfully")
+        );
     }
 }
