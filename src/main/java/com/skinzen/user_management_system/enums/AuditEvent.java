@@ -1,0 +1,17 @@
+package com.skinzen.user_management_system.enums;
+
+public enum AuditEvent {
+
+    USER_REGISTERED,
+    LOGIN_SUCCESS,
+    LOGIN_FAILED,
+    EMAIL_VERIFIED,
+    PASSWORD_CHANGED,
+    PASSWORD_RESET,
+    LOGOUT,
+    TOKEN_REFRESHED,
+    REFRESH_TOKEN_REUSE,
+    ACCOUNT_LOCKED,
+    ACCOUNT_DISABLED,
+    TOKEN_REFRESH_FAILED, ROLE_CHANGED
+}
