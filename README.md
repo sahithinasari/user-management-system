@@ -293,26 +293,11 @@ PENDING_VERIFICATION
 LOCKED
 DISABLED
 ```
-
----
-
-# Roles
-
-```text
-USER
- |
- ├─ View own profile
- ├─ Update own profile
- └─ Change own password
-
-
-ADMIN
- |
- ├─ Manage users
- ├─ Create users
- ├─ Retrieve users
- ├─ Update users
- └─ Delete users
+Method	Endpoint	        Description
+POST	/api/v1/auth/register	User registration
+POST	/api/v1/auth/login	User login
+POST	/api/v1/auth/refresh	Issue new access & refresh token
+POST	/api/v1/auth/logout	Logout (revoke refresh token)
 ```
 ---
 
@@ -453,21 +438,9 @@ Run all tests:
 ```bash
 mvn test
 ```
-
-In IntelliJ IDEA:
-
-```text
-Right-click test package
-        ↓
-Run 'Tests in ...'
-```
-
-To view coverage:
-
-```text
-Right-click test package
-        ↓
-Run 'Tests in ...' with Coverage
+Endpoint	Limit
+/auth/login	5 requests / minute / IP
+/auth/register	3 requests / minute / IP
 ```
 
 ---
