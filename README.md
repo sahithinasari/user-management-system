@@ -94,11 +94,11 @@ Refresh Token Reuse Detected
 ## API Endpoints
 **Authentication**
 ```
-Method	Endpoint	            Description
-POST	/api/v1/auth/register	User registration
-POST	/api/v1/auth/login	   User login
-POST	/api/v1/auth/refresh   	Issue new access & refresh token
-POST	/api/v1/auth/logout	   Logout (revoke refresh token)
+Method	Endpoint	                Description
+POST	   /api/v1/auth/register	 User registration
+POST	   /api/v1/auth/login	    User login
+POST	   /api/v1/auth/refresh   	 Issue new access & refresh token
+POST	   /api/v1/auth/logout	    Logout (revoke refresh token)
 ```
 **Authorization**
 ```
@@ -119,9 +119,9 @@ ADMIN	/admin/users
 
 ### Rate Limiting Policy
 ```
-Endpoint	Limit
-/auth/login	5 requests / minute / IP
-/auth/register	3 requests / minute / IP
+Endpoint	       Limit
+/auth/login	    5 requests / minute / IP
+/auth/register	 3 requests / minute / IP
 ```
 - Returns HTTP 429 (Too Many Requests) on violation.
 
