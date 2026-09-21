@@ -349,10 +349,10 @@ Audit logging is implemented separately from business logic using **Spring AOP**
 
 Authentication endpoints are protected using IP-based rate limiting.
 
-| Endpoint                |                    Limit |
-| ----------------------- | -----------------------: |
-| `/api/v1/auth/login`    | 5 requests / minute / IP |
-| `/api/v1/auth/register` | 3 requests / minute / IP |
+| Endpoint                | Limit                     |
+| ----------------------- |--------------------------:|
+| `/api/v1/auth/login`    |  5 requests / minute / IP |
+| `/api/v1/auth/register` |  3 requests / minute / IP |
 
 When the limit is exceeded:
 
