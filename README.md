@@ -454,22 +454,6 @@ Run all tests:
 mvn test
 ```
 
-In IntelliJ IDEA:
-
-```text
-Right-click test package
-        ↓
-Run 'Tests in ...'
-```
-
-To view coverage:
-
-```text
-Right-click test package
-        ↓
-Run 'Tests in ...' with Coverage
-```
-
 ---
 
 # Running Locally with Docker
@@ -493,13 +477,8 @@ EMAIL_PASSWORD=your-app-password
 
 > Never commit real credentials, JWT secrets, email passwords, or other secrets to Git.
 
-## 2. Build the Application
 
-```bash
-mvn clean package -DskipTests
-```
-
-## 3. Build and Start Containers
+## 2. Build and Start Containers
 
 ```bash
 docker-compose up -d --build
@@ -673,23 +652,6 @@ http://localhost:2023/swagger-ui.html
 ```
 
 ---
-
-# Stopping Docker Containers
-
-```bash
-docker-compose down
-```
-
-To also remove the database volume:
-
-```bash
-docker-compose down -v
-```
-
-> Use `-v` carefully because it removes persisted database data associated with the Compose volumes.
-
----
-
 # Project Goals
 
 This project is being developed incrementally with a focus on production-oriented backend practices.
