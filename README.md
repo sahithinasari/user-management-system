@@ -438,11 +438,6 @@ Run all tests:
 ```bash
 mvn test
 ```
-Endpoint	Limit
-/auth/login	5 requests / minute / IP
-/auth/register	3 requests / minute / IP
-```
-
 ---
 
 # Running Locally with Docker
@@ -452,27 +447,24 @@ Endpoint	Limit
 Create a `.env` file in the root directory:
 
 ```env
-SPRING_PROFILES_ACTIVE=default
 
-DB_URL=jdbc:mysql://mysql:3306/user_db
+DB_URL=jdbc:mysql://mysql:3306/user_mgmt_service
 DB_USERNAME=user-name
-DB_PASSWORD=password
+DB_PASSWORD=your-password
 
 JWT_SECRET=your-secret-key
 
 EMAIL_USERNAME=your-email@gmail.com
 EMAIL_PASSWORD=your-app-password
+
+# MySQL Docker image variables
+MYSQL_DATABASE=user_mgmt_service
+MYSQL_ROOT_PASSWORD=your-password
+
 ```
 
-> Never commit real credentials, JWT secrets, email passwords, or other secrets to Git.
 
-## 2. Build the Application
-
-```bash
-mvn clean package -DskipTests
-```
-
-## 3. Build and Start Containers
+## 2. Build and Start Containers
 
 ```bash
 docker-compose up -d --build
@@ -646,23 +638,6 @@ http://localhost:2023/swagger-ui.html
 ```
 
 ---
-
-# Stopping Docker Containers
-
-```bash
-docker-compose down
-```
-
-To also remove the database volume:
-
-```bash
-docker-compose down -v
-```
-
-> Use `-v` carefully because it removes persisted database data associated with the Compose volumes.
-
----
-
 # Project Goals
 
 This project is being developed incrementally with a focus on production-oriented backend practices.
