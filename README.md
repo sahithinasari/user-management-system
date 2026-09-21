@@ -463,19 +463,21 @@ mvn test
 Create a `.env` file in the root directory:
 
 ```env
-SPRING_PROFILES_ACTIVE=default
 
-DB_URL=jdbc:mysql://mysql:3306/user_db
+DB_URL=jdbc:mysql://mysql:3306/user_mgmt_service
 DB_USERNAME=user-name
-DB_PASSWORD=password
+DB_PASSWORD=your-password
 
 JWT_SECRET=your-secret-key
 
 EMAIL_USERNAME=your-email@gmail.com
 EMAIL_PASSWORD=your-app-password
-```
 
-> Never commit real credentials, JWT secrets, email passwords, or other secrets to Git.
+# MySQL Docker image variables
+MYSQL_DATABASE=user_mgmt_service
+MYSQL_ROOT_PASSWORD=your-password
+
+```
 
 
 ## 2. Build and Start Containers
