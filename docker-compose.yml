@@ -4,11 +4,10 @@ services:
   mysql:
     image: mysql:8.3
     container_name: ums-mysql
-    environment:
-      MYSQL_DATABASE: user_db
-      MYSQL_ROOT_PASSWORD: root
     ports:
       - "3307:3306"
+    env_file:
+      - .env
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
