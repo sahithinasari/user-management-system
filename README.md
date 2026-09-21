@@ -94,11 +94,11 @@ Refresh Token Reuse Detected
 ## API Endpoints
 **Authentication**
 ```
-Method	Endpoint	        Description
+Method	Endpoint	            Description
 POST	/api/v1/auth/register	User registration
-POST	/api/v1/auth/login	User login
-POST	/api/v1/auth/refresh	Issue new access & refresh token
-POST	/api/v1/auth/logout	Logout (revoke refresh token)
+POST	/api/v1/auth/login	   User login
+POST	/api/v1/auth/refresh   	Issue new access & refresh token
+POST	/api/v1/auth/logout	   Logout (revoke refresh token)
 ```
 **Authorization**
 ```
