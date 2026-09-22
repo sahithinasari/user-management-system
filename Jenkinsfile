@@ -5,16 +5,11 @@ pipeline {
         maven 'Maven-3.9'
     }
     stages {
-        stage('Checkout') {
-            steps {
-                echo 'checkout..'
-                sh 'mvn install'
-            }
-        }
-
+        
         stage('Test') {
             steps {
                 echo 'testing..'
+                sh 'mvn test'
             }
         }
 
