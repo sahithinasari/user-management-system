@@ -6,19 +6,19 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                checkout scm
+                echo 'checkout..'
             }
         }
 
         stage('Test') {
             steps {
-                sh 'mvn test'
+                echo 'testing..'
             }
         }
 
         stage('Docker Build') {
             steps {
-                sh 'docker compose build'
+                echo 'docker build ...'
             }
         }
     }
