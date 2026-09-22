@@ -1,14 +1,14 @@
 pipeline {
 
     agent any
-
+    tools {
+        maven 'Maven-3.9'
+    }
     stages {
         stage('Checkout') {
             steps {
                 echo 'checkout..'
-                maven('Maven-3.9'){
-                   sh 'mvn install'
-                }
+                sh 'mvn install'
             }
         }
 
