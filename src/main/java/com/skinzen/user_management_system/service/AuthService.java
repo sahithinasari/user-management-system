@@ -58,6 +58,7 @@ public class AuthService {
         user.setName(request.name());
         user.setRole(Role.USER);
         user.setStatus(UserStatus.PENDING_VERIFICATION);
+        user.setMobileNo(request.mobileNo());
         user.setEmailVerified(false);
         user.setCreatedAt(LocalDateTime.now());
 
